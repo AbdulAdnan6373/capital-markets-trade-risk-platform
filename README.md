@@ -1,94 +1,168 @@
 # Capital Markets Trade and Risk Data Platform
 
-**Status:** In Development
+**Status:** Completed
 
 ## Project Overview
 
-This independent portfolio project simulates an enterprise capital-markets data platform using synthetic financial data and publicly available market-price data.
+This portfolio project demonstrates an end-to-end capital-markets data platform using synthetic financial data.
 
-The platform processes trade executions, positions, accounts, securities, counterparties and market prices through batch and streaming pipelines. It produces analytics-ready datasets for financial reporting, profit and loss calculations, portfolio exposure and risk analysis.
-
-## Objectives
-
-- Process more than 10 million financial records
-- Build batch and real-time streaming pipelines
-- Store raw, processed and curated data in Amazon S3
-- Transform large datasets using PySpark and Spark SQL
-- Implement Apache Iceberg incremental processing
-- Schedule and monitor pipelines using Apache Airflow
-- Build automated data-quality and reconciliation checks
-- Publish dimensional models for reporting
-- Implement monitoring, security, Terraform and CI/CD
-- Measure Spark and pipeline performance improvements
+It processes accounts, counterparties, securities, trades, positions, and market prices through batch and streaming pipelines. The processed data supports portfolio valuation, profit-and-loss analysis, exposure analysis, and risk reporting.
 
 ## Architecture
 
+### Batch Pipeline
+
 ```mermaid
 flowchart TD
-    A["Batch Sources"] --> C["AWS Glue"]
-    B["Streaming Sources"] --> D["Kafka and Spark Streaming"]
-    C --> E["Amazon S3 Raw"]
-    D --> E
-    E --> F["Amazon EMR PySpark"]
-    F --> G["S3 Iceberg Tables"]
-    G --> H["Amazon Redshift"]
-    H --> I["Risk and Finance Dashboard"]
+    A["Python Data Generators"] --> B["Parquet Files"]
+    B --> C["Amazon S3 Raw Zone"]
+    C --> D["AWS Glue PySpark Jobs"]
+    D --> E["Amazon S3 Processed Zone"]
+    E --> F["Glue Crawler and Data Catalog"]
+    F --> G["Amazon Athena"]
 ```
 
-## Planned Data Volume
+### Streaming Pipeline
 
-| Dataset | Approximate Records |
-|---|---:|
-| Trade executions | 10,000,000 |
-| Market prices | 3,000,000 |
-| Position snapshots | 1,000,000 |
-| Customer accounts | 100,000 |
-| Securities | 20,000 |
-| Counterparties | 5,000 |
+```mermaid
+flowchart TD
+    A["Python Trade Producer"] --> B["Apache Kafka in Docker"]
+    B --> C["Python Kafka Consumer"]
+    C --> D["Validation and Micro-Batching"]
+    D --> E["Amazon S3 Streaming Zone"]
+    E --> F["Glue Crawler and Data Catalog"]
+    F --> G["Amazon Athena"]
+```
 
-## Business Outputs
+## What Was Implemented
 
-- Daily portfolio positions
-- Realized and unrealized profit and loss
-- Portfolio market value
-- Exposure by security and sector
-- Counterparty exposure
-- Concentration risk
-- Price volatility
-- Daily trading summaries
+### Data Generation
 
-## Data Engineering Scenarios
+Synthetic datasets were generated for:
 
-The project will demonstrate:
+- Customer accounts
+- Counterparties
+- Securities
+- Trade executions
+- Positions
+- Market prices
 
-- Duplicate-trade handling
-- Missing and invalid record detection
-- Late-arriving data
-- Schema evolution
-- Source-to-target reconciliation
-- Incremental processing
-- Partition pruning
-- Spark performance optimization
-- Pipeline retries and controlled reruns
-- Monitoring and alerting
+### Batch Processing
+
+Three AWS Glue PySpark jobs were created:
+
+- `trade-risk-process-trades`
+- `trade-risk-process-positions`
+- `trade-risk-process-market-prices`
+
+These jobs:
+
+- Read raw Parquet files from Amazon S3
+- Validate required fields
+- Remove duplicate or invalid records
+- Enrich and transform the data
+- Partition the output by date
+- Write processed Parquet data back to Amazon S3
+
+### Workflow Orchestration
+
+An AWS Glue workflow named `trade-risk-batch-workflow` runs the three processing jobs.
+
+After all three jobs succeed, the conditional trigger starts `trade-risk-processed-crawler`. The crawler updates the AWS Glue Data Catalog so the latest processed data can be queried in Athena.
+
+### Streaming Ingestion
+
+The streaming pipeline uses:
+
+- A Python producer to generate synthetic trade events
+- Apache Kafka running locally through Docker
+- A Python consumer to validate trade events
+- Micro-batches of validated JSON records
+- Amazon S3 as the streaming-data destination
+
+The streaming crawler registers the S3 data in the Glue Data Catalog, making it queryable through Athena.
+
+## Analytics Created
+
+Athena tables and reusable views were created for:
+
+- Enriched trades
+- Fully enriched trades
+- Position valuation
+- Daily trade summaries
+- Account portfolio summaries
+- Account risk summaries
+- Market-price analysis
+- Streaming trade validation
+
+Example streaming validation results included:
+
+- Total trade count
+- Distinct account count
+- BUY trade count
+- SELL trade count
 
 ## Technology Stack
 
-- Python and SQL
-- PySpark and Spark SQL
+- Python
+- PySpark
+- SQL
 - Apache Kafka
-- Apache Airflow
 - Docker
 - Amazon S3
-- AWS Glue
-- Amazon EMR Serverless
-- Apache Iceberg
-- Amazon Redshift Serverless
-- Amazon CloudWatch
-- Terraform
-- GitHub Actions
-- Power BI or Amazon QuickSight
+- AWS Glue ETL
+- AWS Glue Workflows
+- AWS Glue Crawlers
+- AWS Glue Data Catalog
+- Amazon Athena
+- Parquet
+- JSON
+- Git and GitHub
+
+## Project Structure
+
+```text
+capital-markets-trade-risk-platform/
+├── config/
+│   └── data_generation.yml
+├── src/
+│   ├── generators/
+│   │   ├── generate_accounts.py
+│   │   ├── generate_counterparties.py
+│   │   ├── generate_market_prices.py
+│   │   ├── generate_positions.py
+│   │   ├── generate_securities.py
+│   │   ├── generate_trades.py
+│   │   └── kafka_trade_producer.py
+│   ├── ingestion/
+│   │   ├── kafka_trade_consumer.py
+│   │   └── upload_to_s3.py
+│   └── jobs/
+│       └── batch/
+│           ├── process_market_prices.py
+│           ├── process_positions.py
+│           └── process_trades.py
+├── docker-compose.yml
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+
+## Key Learning Outcomes
+
+This project demonstrates how to:
+
+- Build batch and streaming data pipelines
+- Store raw and processed data in Amazon S3
+- Transform financial data with PySpark
+- Validate missing, duplicate, and invalid records
+- Partition data for efficient processing
+- Coordinate parallel Glue jobs using workflows and triggers
+- Automatically update metadata using Glue crawlers
+- Query S3 data using Athena
+- Handle job failures such as access-denied and existing-output-path errors
+- Protect secrets and generated files using `.gitignore`
 
 ## Disclaimer
 
-This is an independent educational portfolio project. It uses synthetic data and public market information. It does not contain confidential information or represent an internal system belonging to TD Securities or another financial institution.
+This is an independent educational portfolio project. It uses synthetic data and does not contain confidential information or represent an internal system belonging to any financial institution.
