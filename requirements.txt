@@ -1,0 +1,7 @@
+boto3
+Faker
+numpy
+pyarrow
+PyYAML
+python-dotenv
+pytest

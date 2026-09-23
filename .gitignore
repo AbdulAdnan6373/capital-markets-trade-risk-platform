@@ -1,0 +1,53 @@
+# Python temporary files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python virtual environment
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Generated financial datasets
+data/generated/
+data/raw/
+data/processed/
+data/curated/
+data/quarantine/
+*.parquet
+
+# Spark temporary files
+.sparkStaging/
+metastore_db/
+derby.log
+
+# Airflow logs and local database
+airflow/logs/
+airflow/airflow.db
+
+# Terraform temporary and state files
+infrastructure/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Docker volumes
+docker/volumes/
+
+# Logs
+logs/
+*.log
+
+# VS Code and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

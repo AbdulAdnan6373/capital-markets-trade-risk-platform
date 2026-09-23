@@ -1,0 +1,37 @@
+project:
+  random_seed: 42
+  output_directory: data/generated
+  file_format: parquet
+  compression: snappy
+  chunk_size: 250000
+
+datasets:
+  accounts:
+    development_records: 1000
+    full_records: 100000
+
+  securities:
+    development_records: 500
+    full_records: 20000
+
+  counterparties:
+    development_records: 100
+    full_records: 5000
+
+  trades:
+    development_records: 100000
+    full_records: 10000000
+
+  market_prices:
+    development_records: 50000
+    full_records: 3000000
+
+  positions:
+    development_records: 10000
+    full_records: 1000000
+
+data_quality_scenarios:
+  duplicate_trade_rate: 0.002
+  null_security_rate: 0.001
+  invalid_price_rate: 0.0005
+  late_arrival_rate: 0.01
