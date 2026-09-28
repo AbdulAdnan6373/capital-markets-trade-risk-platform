@@ -162,6 +162,19 @@ This project demonstrates how to:
 - Query S3 data using Athena
 - Handle job failures such as access-denied and existing-output-path errors
 - Protect secrets and generated files using `.gitignore`
+## Project Results
+
+### Daily Trading Activity
+
+This chart shows the daily number of processed trades and the BUY/SELL distribution.
+
+![Daily Trading Activity](docs/images/04-trading-activity-dashboard.png)
+
+### Daily Trade Value Trends
+
+This chart shows the daily trade value trend by currency. The currency values are shown separately because no foreign-exchange conversion was applied.
+
+![Daily Trade Value Trends](docs/images/05-trade-value-trends.png)
 
 ## Disclaimer
 
